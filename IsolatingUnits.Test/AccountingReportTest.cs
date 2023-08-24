@@ -59,5 +59,40 @@ namespace IsolatingUnits.Test
             Should.Throw<ArgumentException>(() => _sut!.CreateReport(Guid.Empty, TestDay));
 
         }
+
+        [Test]
+        public void CreateReport_ShouldGetInvoicesFromFtp()
+        {
+            // Act
+            _sut!.CreateReport(_existingCustomerId, TestDay);   
+
+            // Assert
+            _ftpImport!.Received(1).GetInvoicesForCustomer(_existingCustomerId, TestDay);
+        }
+
+        [Test]
+        public void CreateReport_ShouldFindReceiptFromFileStore()
+        {
+            // Arrange
+            var invoiceId = Guid.NewGuid();
+            _ftpImport!.GetInvoicesForCustomer(_existingCustomerId, TestDay).Returns(new List<Invoice>
+            {
+                new Invoice
+                {
+                    Id = invoiceId,
+                    CustomerId = _existingCustomerId,
+                    Items = new List<InvoiceItem>
+                    {
+                        new InvoiceItem { ItemPrice = 10, Quantity = 1 },
+                    }
+                }
+            }); 
+
+            // Act
+            _sut!.CreateReport(_existingCustomerId, TestDay);   
+
+            // Assert
+            _fileStore!.Received(1).FindReceipt(invoiceId);
+        }
     }
 }
