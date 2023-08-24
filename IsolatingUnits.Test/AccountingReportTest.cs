@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using NSubstitute;
 using NUnit.Framework;
 using Shouldly;
 
@@ -19,7 +20,7 @@ namespace IsolatingUnits.Test
             _dbContext = new DbContext();
             _ftpImport = new FtpImport();
             _fileStore = new FileStore();
-            _logger = new DummyLogger<AccountingReport>();
+            _logger = Substitute.For<ILogger<AccountingReport>>();
             
             _sut = new AccountingReport(_dbContext, _ftpImport, _fileStore, _logger);
         }
