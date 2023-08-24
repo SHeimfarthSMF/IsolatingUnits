@@ -1,6 +1,6 @@
 ﻿namespace IsolatingUnits;
 
-public class DbContext
+public class DbContext : IDbContext
 {
     private readonly List<Customer> _customers = new()
     {

@@ -1,6 +1,6 @@
 ﻿namespace IsolatingUnits;
 
-public class FileStore
+public class FileStore : IFileStore
 {
     public Receipt? FindReceipt(Guid invoiceId)
     {

@@ -4,12 +4,12 @@ namespace IsolatingUnits
 {
     public class AccountingReport
     {
-        private readonly DbContext _dbContext;
-        private readonly FtpImport _ftpImport;
-        private readonly FileStore _fileStore;
+        private readonly IDbContext _dbContext;
+        private readonly IFtpImport _ftpImport;
+        private readonly IFileStore _fileStore;
         private readonly ILogger<AccountingReport> _logger;
 
-        public AccountingReport(DbContext dbContext, FtpImport ftpImport, FileStore fileStore, ILogger<AccountingReport> logger)
+        public AccountingReport(IDbContext dbContext, IFtpImport ftpImport, IFileStore fileStore, ILogger<AccountingReport> logger)
         {
             _dbContext = dbContext;
             _ftpImport = ftpImport;

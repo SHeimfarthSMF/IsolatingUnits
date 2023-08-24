@@ -1,6 +1,6 @@
 ﻿namespace IsolatingUnits;
 
-public class FtpImport
+public class FtpImport : IFtpImport
 {
     public IReadOnlyList<Invoice> GetInvoicesForCustomer(Guid customerId, DateTime date)
     {
