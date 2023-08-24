@@ -4,34 +4,22 @@ namespace IsolatingUnits
 {
     public class AccountingReport
     {
-        private readonly IDbContext _dbContext;
-        private readonly IFtpImport _ftpImport;
-        private readonly IFileStore _fileStore;
-        private readonly ILogger<AccountingReport> _logger;
+        public Customer Customer { get; }
+        public DateTime BusinessDate { get; }
+        public IList<AccountingReportItem> Report { get; private set; } = new List<AccountingReportItem>();
 
-        public AccountingReport(IDbContext dbContext, IFtpImport ftpImport, IFileStore fileStore, ILogger<AccountingReport> logger)
+        public AccountingReport(Customer customer, DateTime businessDate)
         {
-            _dbContext = dbContext;
-            _ftpImport = ftpImport;
-            _fileStore = fileStore;
-            _logger = logger;
+            Customer = customer;
+            BusinessDate = businessDate;
         }
 
-        public IEnumerable<AccountingReportItem> CreateReport(Guid customerId, DateTime businessDay)
+        public void CreateReport(IReadOnlyList<Invoice> invoices, IReadOnlyList<Receipt> receipts)
         {
-            _logger.LogInformation("Creating accounting report for customer {CustomerId} on {BusinessDay}", customerId, businessDay);
-            var customer = _dbContext.GetCustomerById(customerId);
-            if (customer is null)
-                throw new ArgumentException("Customer not found", nameof(customerId));
-
-            var result = new List<AccountingReportItem>();
-
-            _logger.LogInformation("Getting invoices for customer {CustomerId} on {BusinessDay}", customerId, businessDay); 
-            var invoices = _ftpImport.GetInvoicesForCustomer(customerId, businessDay);
+            Report = new List<AccountingReportItem>();
             foreach (var invoice in invoices)
             {
-                _logger.LogInformation("Processing invoice {InvoiceId} for customer {CustomerId} on {BusinessDay}", invoice.Id, customerId, businessDay);
-                var receipt = _fileStore.FindReceipt(invoice.Id);
+                var receipt = receipts.FirstOrDefault(x=>x.InvoiceId == invoice.Id);
 
                 var entry = new AccountingReportItem(invoice)
                 {
@@ -39,10 +27,8 @@ namespace IsolatingUnits
                     AlreadyPaid = receipt?.PaymentAmount ?? 0,
                 };
 
-                result.Add(entry);
+                Report.Add(entry);
             }
-
-            return result;
         }
     }
 }
